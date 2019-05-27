@@ -82,10 +82,6 @@ export const initFBChat = (window: BrowserWindow) => {
 
     const listen = promisify(api.listen);
     listen().then((message: any) => console.log(message));
-
-    api.getThreadHistory("1490007520", 100, null, (err, dat) =>
-      console.log({ calltype: "direct", count: dat.length, last: dat[49] })
-    );
   });
 };
 

@@ -4,6 +4,7 @@ import _ from "lodash";
 import { updateStored } from "../common/utils";
 import { actionatePayload, message, thread } from "facebook-chat-api";
 import { FBResource } from "../common/resources";
+import { Snoozer } from "src/common";
 export type Dict<T> = { [x: string]: T };
 
 // const sendMessageResponse = (e: Electron.Event, data: message) => {
@@ -64,7 +65,7 @@ export const sendMessage = ({
     actionate({ command: "post", resource: FBResource.messages, rec: false }),
     {
       threadID,
-      body: chatInput.current.value
+      body
     },
     { body }
   );
@@ -97,27 +98,17 @@ export const markUnread = (
 };
 
 /** @todo implement */
-export const snooze = (t: thread) => () => {
-  console.log("will snooze " + t);
+export const snoozeMessage = ({ message, threadID, time }: Snoozer) => () => {
+  ipcRenderer.send("snooze", {
+    message,
+    threadID,
+    time
+  });
 };
 
 export const scrollTo = (end: HTMLDivElement) => {
   end.scrollTo({ behavior: "smooth" });
 };
-
-// componentDidMount() {
-//   this.scrollToBottom();
-
-// }
-
-// componentDidUpdate() {
-//   this.scrollToBottom();
-// }
-// sendApproval(): void {
-//   ipcRenderer.send("loginApprovalResponse", this.state.loginApproval);
-
-//   // throw new Error("Method not implemented.");
-// }
 
 export const openThread = (
   ipcRenderer: IpcRenderer,
@@ -143,7 +134,6 @@ export const openThread = (
     threadID,
     read: true
   });
-  console.log(threads[0][threadID]);
 
   setThreadID(threadID);
 

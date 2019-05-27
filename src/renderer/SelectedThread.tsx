@@ -8,7 +8,7 @@ export default ({
 }: {
   selectedThread: thread;
   markUnread: () => void;
-  snooze: (t: thread) => () => void;
+  snooze: (...params: any) => void;
 }) =>
   selectedThread ? (
     <div className="dib">
@@ -16,11 +16,7 @@ export default ({
         <div style={{ cursor: "pointer" }}>Mark as unread</div>{" "}
       </a>
       <div className="dib pa2 fw-700">{selectedThread.name}</div>
-      <a
-        href="#"
-        className="dib pa2 link avenir"
-        onClick={snooze(selectedThread)}
-      >
+      <a href="#" className="dib pa2 link avenir" onClick={snooze}>
         <div style={{ cursor: "pointer" }}>Snooze</div>
       </a>
     </div>

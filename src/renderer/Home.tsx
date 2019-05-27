@@ -7,15 +7,18 @@ import SelectedThread from "./selectedThread";
 import {
   openThread,
   markUnread,
-  snooze,
   Dict,
   sendMessage,
-  scrollTo
+  scrollTo,
+  snoozeMessage
 } from "./stateLogic";
 import ChatWindow from "./ChatWindow";
 import Reply from "./Reply";
 import { thread, message } from "facebook-chat-api";
+import SnoozeMessage from "./snoozerMessage";
 const yourID = "100009069356507";
+
+const defaultMessage = "Hey, just checking in! How are are things going?";
 
 export default () => {
   const chatInput = useRef<HTMLInputElement>(null);
@@ -26,6 +29,7 @@ export default () => {
     messages: getterSetter<Dict<message>>;
   };
   const [selectedThreadID, updateId] = useState("");
+  const [snoozeVisible, setSnoozeVisible] = useState(false);
   const [listening, setListening] = useState(false);
   useEffect(() => {
     if (_.isEmpty(threads[0])) {
@@ -66,8 +70,16 @@ export default () => {
         {threads && selectedThread && (
           <SelectedThread
             markUnread={markUnread(threads, ipcRenderer, selectedThreadID)}
-            snooze={snooze}
+            snooze={() => setSnoozeVisible(snoozeVisible ? false : true)}
             selectedThread={selectedThread}
+          />
+        )}
+        {snoozeVisible && (
+          <SnoozeMessage
+            defaultMessage={defaultMessage}
+            snoozeMessage={(msg, time) =>
+              snoozeMessage(msg, selectedThreadID, time)
+            }
           />
         )}
         {messages && (
