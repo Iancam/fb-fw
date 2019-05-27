@@ -8,8 +8,7 @@ const message = (yourID: string) => (
   type === "message" ? (
     <div
       className={
-        (senderID === threadID ? "tl pr7" : "tr pl7 bg-black-10") +
-        " pa2 avenir"
+        (senderID === threadID ? "" : "bg-black-10") + " pa2 avenir tl pr7"
       }
       key={messageID === "tmp" ? messageID + i : messageID}
     >
@@ -21,14 +20,19 @@ const message = (yourID: string) => (
 
 export default ({
   currentHistory,
-  reff,
+  scrollViewDiv,
+  endOfMessages,
   yourID
 }: {
   currentHistory: message[];
-  reff: React.MutableRefObject<null>;
+  scrollViewDiv: React.RefObject<HTMLDivElement>;
+  endOfMessages: React.RefObject<HTMLDivElement>;
   yourID: string;
-}) => (
-  <div className="overflow-scroll vh-75" ref={reff}>
-    {currentHistory.map(message(yourID))}
-  </div>
-);
+}) => {
+  return (
+    <div className="overflow-scroll vh-75" ref={scrollViewDiv}>
+      {currentHistory.map(message(yourID))}
+      <div className="display-none" ref={endOfMessages} />
+    </div>
+  );
+};

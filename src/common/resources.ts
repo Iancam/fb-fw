@@ -43,7 +43,6 @@ export const resourceToRequest = (api: FBAPI) => {
     messages: {
       get: (payload: actionatePayload<"get", FBResource.messages, false>) => {
         const [threadID, count, before] = payload;
-        console.log(payload);
 
         return new Promise((resolve, reject) => {
           api.getThreadHistory(
@@ -52,13 +51,6 @@ export const resourceToRequest = (api: FBAPI) => {
             before,
             (err: any, history: message[]) => {
               if (err) return reject(err);
-              console.log({
-                last: history[history.length - 1],
-                count: history.length,
-                before,
-                threadID
-              });
-
               resolve(history);
             }
           );
@@ -99,8 +91,6 @@ export const useMessenStore = (ipcRenderer: IpcRenderer) => {
       return agg;
     }, {});
 
-  console.log(states, _.keys(FBResource));
-
   if (!initialized) {
     _.values(FBResource).forEach((resource, i) => {
       const resourceReceived = actionate({
@@ -112,7 +102,6 @@ export const useMessenStore = (ipcRenderer: IpcRenderer) => {
         /** @todo handle the case where we need to update, not replace state */
         const [, setState] = states[resource];
         setState(data);
-        console.log({ resource, data });
       });
     });
     setInitialized(true);

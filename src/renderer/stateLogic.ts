@@ -101,14 +101,9 @@ export const snooze = (t: thread) => () => {
   console.log("will snooze " + t);
 };
 
-// const scrollToBottom = () => {
-//   if (this.scrollview) {
-//     const scrollHeight = this.scrollview.scrollHeight;
-//     const height = this.scrollview.clientHeight;
-//     const maxScrollTop = scrollHeight - height;
-//     this.scrollview.scrollTop = maxScrollTop > 0 ? maxScrollTop : 0;
-//   }
-// };
+export const scrollTo = (end: HTMLDivElement) => {
+  end.scrollTo({ behavior: "smooth" });
+};
 
 // componentDidMount() {
 //   this.scrollToBottom();

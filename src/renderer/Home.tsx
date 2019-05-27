@@ -9,7 +9,8 @@ import {
   markUnread,
   snooze,
   Dict,
-  sendMessage
+  sendMessage,
+  scrollTo
 } from "./stateLogic";
 import ChatWindow from "./ChatWindow";
 import Reply from "./Reply";
@@ -18,7 +19,8 @@ const yourID = "100009069356507";
 
 export default () => {
   const chatInput = useRef<HTMLInputElement>(null);
-  const scrollView = useRef(null);
+  const scrollView = useRef<HTMLDivElement>(null);
+  const endOfMessages = useRef<HTMLDivElement>(null);
   const { threads, messages } = useMessenStore(ipcRenderer) as {
     threads: getterSetter<Dict<thread>>;
     messages: getterSetter<Dict<message>>;
@@ -36,8 +38,7 @@ export default () => {
       setListening(true);
     }
   });
-  console.log(threads, messages);
-
+  endOfMessages.current && scrollTo(endOfMessages.current);
   const selectedThread = threads[0][selectedThreadID];
   return (
     <div className="cf" data-tid="container">
@@ -56,7 +57,8 @@ export default () => {
       <div className="vh-100 w-70 fr pa2">
         {messages && (
           <ChatWindow
-            reff={scrollView}
+            scrollViewDiv={scrollView}
+            endOfMessages={endOfMessages}
             yourID={yourID}
             currentHistory={Object.values(messages[0])}
           />
