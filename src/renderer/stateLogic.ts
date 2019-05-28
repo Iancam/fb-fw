@@ -60,14 +60,14 @@ export const sendMessage = ({
 }) => () => {
   if (!chatInput || !chatInput.current) return;
   const body = chatInput.current.value;
-
+  console.log(threadID);
+  const payload: actionatePayload<"post", FBResource.messages, false> = [
+    threadID,
+    body
+  ];
   ipcRenderer.send(
     actionate({ command: "post", resource: FBResource.messages, rec: false }),
-    {
-      threadID,
-      body
-    },
-    { body }
+    payload
   );
 
   updateStored(messages, {

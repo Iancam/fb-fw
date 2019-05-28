@@ -56,9 +56,10 @@ export const resourceToRequest = (api: FBAPI) => {
           );
         });
       },
-      post: (body: string, threadID: string) => {
+      post: (payload: actionatePayload<"post", FBResource.messages, false>) => {
+        const [body, threadID] = payload;
         return new Promise((resolve, reject) =>
-          api.sendMessage(body, threadID, (err: any, data: any) =>
+          api.sendMessage(threadID, body, (err: any, data: any) =>
             err ? reject(err) : resolve(data)
           )
         );

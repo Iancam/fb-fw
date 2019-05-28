@@ -55,7 +55,9 @@ const glueIpcActionRequestToApi = (resourceToRequest: {
       const fireReceived = (event: Electron.Event) => (data: any) =>
         event.sender.send(actionate({ ...actionTypeParams, rec: true }), data);
       ipcMain.on(actionType, (event: Electron.Event, payload: {}) =>
-        handler(payload).then(fireReceived(event))
+        handler(payload)
+          .then(fireReceived(event))
+          .catch(err => console.error(err))
       );
     });
   });

@@ -42,6 +42,7 @@ export default () => {
       setListening(true);
     }
   });
+
   endOfMessages.current && scrollTo(endOfMessages.current);
   const selectedThread = threads[0][selectedThreadID];
   return (
