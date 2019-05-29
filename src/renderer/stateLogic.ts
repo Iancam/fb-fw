@@ -54,7 +54,7 @@ export const sendMessage = ({
   yourID
 }: {
   selectedThreadID: string;
-  messages: getterSetter<Dict<message>>;
+  messages: getterSetter<Array<message>>;
   chatInput: React.RefObject<HTMLInputElement>;
   yourID: string;
 }) => () => {
@@ -69,9 +69,9 @@ export const sendMessage = ({
     actionate({ command: "post", resource: FBResource.messages, rec: false }),
     payload
   );
-
-  updateStored(messages, {
-    tmp: {
+  messages[1]([
+    ...messages[0],
+    {
       threadID,
       messageID: "tmp",
       body,
@@ -79,7 +79,7 @@ export const sendMessage = ({
       senderID: yourID,
       timestamp: Date.now()
     }
-  });
+  ]);
 
   chatInput.current.setAttribute("value", "");
 };
