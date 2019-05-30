@@ -43,7 +43,6 @@ export default () => {
     }
   });
 
-  endOfMessages.current && scrollTo(endOfMessages.current);
   const selectedThread = threads[0][selectedThreadID];
   return (
     <div className="cf" data-tid="container">
@@ -79,19 +78,22 @@ export default () => {
           <SnoozeMessage
             defaultMessage={defaultMessage}
             snoozeMessage={(msg, time) =>
-              snoozeMessage(msg, selectedThreadID, time)
+              snoozeMessage({ message: msg, timeInHours: time })
             }
           />
         )}
         {messages && (
           <Reply
             reff={chatInput}
-            sendMessage={sendMessage({
-              selectedThreadID,
-              messages,
-              chatInput,
-              yourID
-            })}
+            sendMessage={() => {
+              sendMessage({
+                selectedThreadID,
+                messages,
+                chatInput,
+                yourID
+              })();
+              scrollTo(endOfMessages.current);
+            }}
           />
         )}
       </div>

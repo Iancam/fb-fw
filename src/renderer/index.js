@@ -7,7 +7,13 @@ const styleLink = document.createElement("link");
 
 styleLink.setAttribute("rel", "stylesheet");
 styleLink.setAttribute("href", "static/tachyons.css");
-styles.innerText = `@import url(http://unpkg.com/tachyons-word-break@3.0.5/css/tachyons-word-break.min.css);@import url(https://unpkg.com/tachyons@4/css/tachyons.min.css);`;
+styles.innerText = `
+@import url(http://unpkg.com/tachyons-word-break@3.0.5/css/tachyons-word-break.min.css);
+@import url(https://unpkg.com/tachyons@4/css/tachyons.min.css);
+.flex-column-reverse {
+  flex-direction: column-reverse;
+}
+`;
 document.head.appendChild(styles);
 document.head.appendChild(styleLink);
 render(<Home />, document.getElementById("app"));

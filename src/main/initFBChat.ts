@@ -57,7 +57,7 @@ const glueIpcActionRequestToApi = (resourceToRequest: {
       ipcMain.on(actionType, (event: Electron.Event, payload: {}) =>
         handler(payload)
           .then(fireReceived(event))
-          .catch(err => console.error(err))
+          .catch((err: any) => console.error(err))
       );
     });
   });

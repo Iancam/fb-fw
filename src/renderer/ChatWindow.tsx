@@ -30,9 +30,12 @@ export default ({
   yourID: string;
 }) => {
   return (
-    <div className="overflow-scroll vh-75" ref={scrollViewDiv}>
-      {currentHistory.map(message(yourID))}
+    <div
+      className="overflow-auto vh-75 flex flex-column-reverse"
+      ref={scrollViewDiv}
+    >
       <div className="display-none" ref={endOfMessages} />
+      {currentHistory.reverse().map(message(yourID))}
     </div>
   );
 };

@@ -60,7 +60,6 @@ export const sendMessage = ({
 }) => () => {
   if (!chatInput || !chatInput.current) return;
   const body = chatInput.current.value;
-  console.log(threadID);
   const payload: actionatePayload<"post", FBResource.messages, false> = [
     threadID,
     body
@@ -81,7 +80,7 @@ export const sendMessage = ({
     }
   ]);
 
-  chatInput.current.setAttribute("value", "");
+  chatInput.current.value = "";
 };
 
 export const markUnread = (
@@ -106,8 +105,8 @@ export const snoozeMessage = ({ message, threadID, time }: Snoozer) => () => {
   });
 };
 
-export const scrollTo = (end: HTMLDivElement) => {
-  end.scrollTo({ behavior: "smooth" });
+export const scrollTo = (end?: HTMLDivElement | null) => {
+  end && end.scrollIntoView({ behavior: "smooth" });
 };
 
 export const openThread = (
