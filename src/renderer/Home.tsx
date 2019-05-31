@@ -16,6 +16,7 @@ import ChatWindow from "./ChatWindow";
 import Reply from "./Reply";
 import { thread, message } from "facebook-chat-api";
 import SnoozeMessage from "./snoozerMessage";
+import moment from "moment";
 const yourID = "100009069356507";
 
 const defaultMessage = "Hey, just checking in! How are are things going?";
@@ -64,7 +65,9 @@ export default () => {
             scrollViewDiv={scrollView}
             endOfMessages={endOfMessages}
             yourID={yourID}
-            currentHistory={Object.values(messages[0])}
+            currentHistory={Object.values(messages[0]).sort((a, b) =>
+              moment(b.timestamp).diff(a.timestamp)
+            )}
           />
         )}
         {threads && selectedThread && (

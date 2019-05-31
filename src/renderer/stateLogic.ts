@@ -1,10 +1,10 @@
 import { ipcRenderer, IpcRenderer } from "electron";
 import { actionate, getterSetter } from "../common/resources";
 import _ from "lodash";
-import { updateStored } from "../common/utils";
+import { updateStored, getNewId } from "../common/utils";
 import { actionatePayload, message, thread } from "facebook-chat-api";
 import { FBResource } from "../common/resources";
-import { Snoozer } from "src/common";
+import { Snoozer } from "../common";
 export type Dict<T> = { [x: string]: T };
 
 // const sendMessageResponse = (e: Electron.Event, data: message) => {
@@ -54,7 +54,7 @@ export const sendMessage = ({
   yourID
 }: {
   selectedThreadID: string;
-  messages: getterSetter<Array<message>>;
+  messages: getterSetter<Dict<message>>;
   chatInput: React.RefObject<HTMLInputElement>;
   yourID: string;
 }) => () => {
@@ -68,17 +68,17 @@ export const sendMessage = ({
     actionate({ command: "post", resource: FBResource.messages, rec: false }),
     payload
   );
-  messages[1]([
-    ...messages[0],
-    {
+  const tmp = "tmp" + getNewId();
+  updateStored(messages, {
+    [tmp]: {
       threadID,
-      messageID: "tmp",
+      messageID: tmp,
       body,
       type: "message",
       senderID: yourID,
       timestamp: Date.now()
     }
-  ]);
+  });
 
   chatInput.current.value = "";
 };

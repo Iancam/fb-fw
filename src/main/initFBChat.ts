@@ -1,14 +1,7 @@
 import { ipcMain, BrowserWindow } from "electron";
 import fs from "fs";
 import path from "path";
-// import util from "util";
-import {
-  resourceToRequest,
-  // apiHandler,
-  actionate
-  // command,
-  // FBResource
-} from "../common/resources";
+import { resourceToRequest, actionate } from "../common/resources";
 import { promisify } from "util";
 import { FBAPI, apiHandler, command, FBResource } from "facebook-chat-api";
 import login from "facebook-chat-api";

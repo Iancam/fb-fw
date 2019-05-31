@@ -8,6 +8,9 @@ import {
   thread,
   actionatePayload
 } from "facebook-chat-api";
+import { updateStored } from "./utils";
+import { Dict } from "src/renderer/stateLogic";
+import { promisify } from "util";
 
 export type getterSetter<T> = [T, React.Dispatch<React.SetStateAction<T>>];
 export enum FBResource {
@@ -42,19 +45,7 @@ export const resourceToRequest = (api: FBAPI) => {
     },
     messages: {
       get: (payload: actionatePayload<"get", FBResource.messages, false>) => {
-        const [threadID, count, before] = payload;
-
-        return new Promise((resolve, reject) => {
-          api.getThreadHistory(
-            threadID,
-            count,
-            before,
-            (err: any, history: message[]) => {
-              if (err) return reject(err);
-              resolve(history);
-            }
-          );
-        });
+        return promisify(api.getThreadHistory)(...payload);
       },
       post: (payload: actionatePayload<"post", FBResource.messages, false>) => {
         const [body, threadID] = payload;
@@ -105,7 +96,23 @@ export const useMessenStore = (ipcRenderer: IpcRenderer) => {
         setState(data);
       });
     });
+
+    const resourceReceived = actionate({
+      resource: FBResource.messages,
+      command: "post",
+      rec: true
+    });
+    ipcRenderer.on(resourceReceived, (e: Electron.Event, data: any) => {
+      console.log(data);
+      const [messages, setState] = states[FBResource.messages];
+      const messageMatch = getClosestTmpMessage(messages, data);
+      updateStored(messages, messageMatch);
+    });
     setInitialized(true);
   }
   return states;
 };
+
+function getClosestTmpMessage(messages: Dict<message>, data: unknown) {
+  messages;
+}

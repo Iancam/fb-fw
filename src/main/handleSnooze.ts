@@ -2,13 +2,9 @@ import { Snoozer } from "../common";
 import { appendFile } from "fs";
 import { join } from "path";
 import moment from "moment";
+import { getNewId } from "../common/utils";
 
 const SNOOZED_DATA_PATH = join("snoozed", "files");
-
-const getNewId = (() => {
-  let counter = 0;
-  return () => counter++;
-})();
 
 /** this should be handled by some other part of the system */
 export default (event: Electron.Event, data: Snoozer) => {

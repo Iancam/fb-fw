@@ -47,3 +47,8 @@ export const updateStored: updateStored<any> = (
     ...updates
   });
 };
+
+export const getNewId = (() => {
+  let counter = 0;
+  return () => counter++;
+})();
