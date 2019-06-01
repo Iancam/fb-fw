@@ -86,7 +86,7 @@ export default () => {
           <SnoozeMessage
             defaultMessage={defaultMessage}
             snoozeMessage={(msg, time) =>
-              snoozeMessage({ message: msg, timeInHours: time })
+              snoozeMessage({ message: msg, time, threadID: selectedThreadID })
             }
           />
         )}

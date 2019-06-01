@@ -55,10 +55,12 @@ const glueIpcActionRequestToApi = (resourceToRequest: {
         );
       };
 
-      ipcMain.on(actionType, (event: Electron.Event, payload) =>
-        handler(payload)
-          .then(fireReceived(event))
-          .catch((err: any) => console.error(err))
+      ipcMain.on(
+        actionType,
+        (event: Electron.Event, payload: { payload: any; ctx: any }) =>
+          handler(payload)
+            .then(fireReceived(event))
+            .catch((err: any) => console.error(err))
       );
     });
   });
