@@ -7,38 +7,6 @@ import { FBResource } from "../common/resources";
 import { Snoozer } from "../common";
 export type Dict<T> = { [x: string]: T };
 
-// const sendMessageResponse = (e: Electron.Event, data: message) => {
-//   // Only care about updating the temp message we had created if we're still focused on that
-//   // thread, otherwise we're gonna re-fetch.
-//   if (this.state.selectedThreadID === data.threadID) {
-//     let closestSoFar = Number.MAX_VALUE;
-//     let closestSoFarIndex = -1;
-//     let curMessage = { messageID: "tmp" };
-//     for (var i = 0; i < this.state.currentHistory.length; i++) {
-//       let diff = Math.abs(
-//         this.state.currentHistory[i].timestamp - data.timestamp
-//       );
-//       if (diff < closestSoFar && curMessage.messageID === "tmp") {
-//         closestSoFar = diff;
-//         closestSoFarIndex = i;
-//       }
-//     }
-
-//     let currentHistory = this.state.currentHistory.map((message, i) => {
-//       if (closestSoFarIndex === i) {
-//         return {
-//           ...message,
-//           messageID: data.messageID
-//         };
-//       }
-
-//       return message;
-//     });
-
-//     this.setState({ currentHistory });
-//   }
-// };
-
 export const loadNextMessages = (threadId: string, messages: message[]) => {
   messages;
 };
@@ -61,25 +29,26 @@ export const sendMessage = ({
   if (!chatInput || !chatInput.current) return;
   const body = chatInput.current.value;
   const payload: actionatePayload<"post", FBResource.messages, false> = [
-    threadID,
-    body
+    body,
+    threadID
   ];
+  const id = getNewId().toString();
   ipcRenderer.send(
     actionate({ command: "post", resource: FBResource.messages, rec: false }),
-    payload
+    { payload, ctx: { id } }
   );
-  const tmp = "tmp" + getNewId();
-  updateStored(messages, {
-    [tmp]: {
+
+  const tmpMessage = {
+    [id]: {
       threadID,
-      messageID: tmp,
+      messageID: id,
       body,
       type: "message",
       senderID: yourID,
       timestamp: Date.now()
     }
-  });
-
+  };
+  updateStored(messages, tmpMessage);
   chatInput.current.value = "";
 };
 
@@ -126,12 +95,14 @@ export const openThread = (
       resource: FBResource.messages,
       rec: false
     }),
-    payload
+    { payload }
   );
 
   ipcRenderer.send("markAsRead", {
-    threadID,
-    read: true
+    payload: {
+      threadID,
+      read: true
+    }
   });
 
   setThreadID(threadID);

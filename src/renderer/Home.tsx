@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react"; // import { Link } from "react-router-dom";
 import { ipcRenderer } from "electron";
 import _ from "lodash";
-import { useMessenStore, getterSetter } from "../common/resources";
+import { getterSetter, actionate, FBResource } from "../common/resources";
 import Threads from "./Threads";
 import SelectedThread from "./selectedThread";
 import {
@@ -16,9 +16,8 @@ import ChatWindow from "./ChatWindow";
 import Reply from "./Reply";
 import { thread, message } from "facebook-chat-api";
 import SnoozeMessage from "./snoozerMessage";
-import moment from "moment";
-const yourID = "100009069356507";
-
+import { yourID } from "../common/utils";
+import { useMessenStore } from "./messenStore";
 const defaultMessage = "Hey, just checking in! How are are things going?";
 
 export default () => {
@@ -34,7 +33,10 @@ export default () => {
   const [listening, setListening] = useState(false);
   useEffect(() => {
     if (_.isEmpty(threads[0])) {
-      ipcRenderer.send("GET_THREADS");
+      ipcRenderer.send(
+        actionate({ command: "get", resource: FBResource.threads, rec: false }),
+        {}
+      );
     }
   });
   useEffect(() => {
@@ -45,6 +47,7 @@ export default () => {
   });
 
   const selectedThread = threads[0][selectedThreadID];
+
   return (
     <div className="cf" data-tid="container">
       <div className="fl fw-700 avenir pa2 w-20 vh-100 overflow-scroll">
@@ -65,8 +68,10 @@ export default () => {
             scrollViewDiv={scrollView}
             endOfMessages={endOfMessages}
             yourID={yourID}
-            currentHistory={Object.values(messages[0]).sort((a, b) =>
-              moment(b.timestamp).diff(a.timestamp)
+            currentHistory={Object.values(messages[0]).sort(
+              ({ timestamp: a }, { timestamp: b }) => {
+                return a - b;
+              }
             )}
           />
         )}
