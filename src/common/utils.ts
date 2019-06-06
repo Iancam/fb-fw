@@ -32,7 +32,6 @@ export const updateStored: updateStored<any> = (
   [store, setStore],
   _updates
 ) => {
-  //{key:{unreadCount: 0 }}
   const toUpdates = (updateObj: any) => {
     const [key, newVal] = Object.entries(_updates)[0];
     const original = store[key];
@@ -43,10 +42,12 @@ export const updateStored: updateStored<any> = (
       ? _.keyBy(_updates.map(toUpdates), "__key")
       : toUpdates(_updates);
 
-  setStore({
+  const updatedStore = {
     ...store,
     ...updates
-  });
+  };
+
+  setStore(updatedStore);
 };
 
 export const getNewId = (() => {

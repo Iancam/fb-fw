@@ -14,7 +14,7 @@ const SnoozeMessage: React.SFC<SnoozeMessageProps> = ({
   defaultWaitTime = 24
 }) => {
   const messageGS = useState(defaultMessage);
-  const [message, setMessage] = messageGS;
+  const [message] = messageGS;
   const waitTime = useState(defaultWaitTime);
   const handleKeyDown = (e: React.KeyboardEvent<HTMLElement>) => {
     if (e.key === "Enter") {
@@ -86,7 +86,8 @@ type FormElementProps = {
 const FormElement = ({ label, getterSetter, inputProps }: FormElementProps) => {
   const isTextArea = inputProps.type === "textarea";
   const [value, setValue] = getterSetter || [undefined, undefined];
-  const onChange = (e: Event) => e && setValue(e.target.value);
+  const onChange = (e: React.ChangeEvent<HTMLInputElement>) =>
+    e && setValue(e.target.value);
   const inpProps = value ? { ...inputProps, onChange, value } : inputProps;
   return (
     <>

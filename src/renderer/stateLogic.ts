@@ -28,23 +28,25 @@ export const sendMessage = ({
   yourID: string;
 }) => (body: string) => {
   const payload: actionatePayload<"post", FBResource.messages, false> = [
-    threadID,
-    body
+    body,
+    threadID
   ];
-  console.log(payload);
-
-  ipcRenderer.send(actionate("post", FBResource.messages, false), payload);
-  const tmp = "tmp" + getNewId();
-  updateStored(messages, {
-    [tmp]: {
+  const id = getNewId().toString();
+  ipcRenderer.send(actionate("post", FBResource.messages, false), {
+    payload,
+    ctx: { id }
+  });
+  const tmpMessage = {
+    [id]: {
       threadID,
-      messageID: tmp,
+      messageID: id,
       body,
       type: "message",
       senderID: yourID,
       timestamp: Date.now()
     }
-  });
+  };
+  updateStored(messages, tmpMessage);
 };
 
 export const markUnread = (
@@ -75,11 +77,13 @@ export const openThread = (
     null
   ];
 
-  ipcRenderer.send(actionate("get", FBResource.messages, false), payload);
+  ipcRenderer.send(actionate("get", FBResource.messages, false), { payload });
 
   ipcRenderer.send("markAsRead", {
-    threadID,
-    read: true
+    payload: {
+      threadID,
+      read: true
+    }
   });
   setThreadID(threadID);
   updateStored(threads, { [threadID]: { unreadCount: 0 } });
@@ -97,12 +101,15 @@ const snoozeMessage = (
   }
 
   const diff = moment(data.time).diff(moment());
-  console.log("dis be snozzled", { data });
+  console.log("dis be snozzled", { data, diff });
   setTimeout(() => {
+    console.log("bang, I was fired");
+
     // actually post the message
     sendMessage({ selectedThreadID: data.threadID, messages, yourID })(
       data.message
     );
+
     // clear it from storage
     ipcRenderer.send("DELETE_SNOOZER", data);
     if (snoozers[0]) {

@@ -44,6 +44,9 @@ export const initSnoozer = () => {
   ipcMain.on("GET_SNOOZERS", (e: Electron.Event, data?: any) => {
     loadSnoozerDS()
       .then(d => e.sender.send("GET_SNOOZERS_RCV", d))
-      .catch(er => console.error(er));
+      .catch(er => {
+        console.warn(er);
+        console.log(snoozerDS);
+      });
   });
 };
