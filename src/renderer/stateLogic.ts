@@ -7,6 +7,7 @@ import { FBResource } from "../common/resources";
 import { Snoozer } from "../common";
 import { useState } from "react";
 import moment from "moment";
+import { yourID } from "../common/utils";
 export type Dict<T> = { [x: string]: T };
 
 export const loadNextMessages = (threadId: string, messages: message[]) => {
@@ -85,13 +86,13 @@ export const openThread = (
 };
 
 const snoozeMessage = (
-  snoozers: Dict<Snoozer> | undefined,
-  setSnoozers: React.Dispatch<React.SetStateAction<Dict<Snoozer> | undefined>>
+  messages: getterSetter<Dict<message>>,
+  snoozers: getterSetter<Dict<Snoozer> | undefined>
 ) => (data: Snoozer) => {
   // store the snoozer in case we shut down
   const key = data.threadID;
 
-  if (snoozers && !snoozers[key]) {
+  if (snoozers[0] && !snoozers[0][key]) {
     ipcRenderer.send("POST_SNOOZER", data);
   }
 
@@ -99,25 +100,29 @@ const snoozeMessage = (
   console.log("dis be snozzled", { data });
   setTimeout(() => {
     // actually post the message
-    sendMessage([data.threadID, data.message]);
+    sendMessage({ selectedThreadID: data.threadID, messages, yourID })(
+      data.message
+    );
     // clear it from storage
     ipcRenderer.send("DELETE_SNOOZER", data);
-    if (snoozers) {
-      const { [data.threadID]: d, ...newSnoozers } = snoozers;
-      console.log(newSnoozers);
-      setSnoozers(newSnoozers);
+    if (snoozers[0]) {
+      const { [data.threadID]: d, ...newSnoozers } = snoozers[0];
+      snoozers[1](newSnoozers);
     }
   }, Math.max(diff, 0));
 };
 
 /**@todo add snoozers to the app API */
-export const useSnoozers = (ipcRenderer: IpcRenderer) => {
+export const useSnoozers = (
+  ipcRenderer: IpcRenderer,
+  messages: getterSetter<Dict<message>>
+) => {
   const [initialized, setInitialized] = useState(false);
   const [timers, setTimers] = useState(false);
   const [snoozers, setSnoozers] = useState<Dict<Snoozer> | undefined>(
     undefined
   );
-  const localSnoozeMessage = snoozeMessage(snoozers, setSnoozers);
+  const localSnoozeMessage = snoozeMessage(messages, [snoozers, setSnoozers]);
   if (!initialized) {
     ipcRenderer.on(
       "GET_SNOOZERS_RCV",

@@ -63,7 +63,7 @@ const SnoozeMessage: React.SFC<SnoozeMessageProps> = ({
           snoozeMessage(
             message,
             moment()
-              .add(waitTime[0])
+              .add(waitTime[0], "h")
               .toDate()
           )
         }
