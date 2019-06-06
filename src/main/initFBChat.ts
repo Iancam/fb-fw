@@ -34,19 +34,21 @@ const glueIpcActionRequestToApi = (resourceToRequest: {
 }) => {
   ["get", "post"].forEach(commandName => {
     Object.entries(resourceToRequest).forEach(([k, resource]) => {
-      const actionTypeParams = {
-        command: commandName as command,
-        rec: false,
-        resource: k as FBResource
-      };
-      const actionType = actionate(actionTypeParams);
+      const actionType = actionate(
+        commandName as command,
+        k as FBResource,
+        false
+      );
       const handler = resource[commandName];
       if (!handler) {
         console.error(actionType + " not implemented");
         return;
       }
       const fireReceived = (event: Electron.Event) => (data: any) =>
-        event.sender.send(actionate({ ...actionTypeParams, rec: true }), data);
+        event.sender.send(
+          actionate(commandName as command, k as FBResource, true),
+          data
+        );
       ipcMain.on(actionType, (event: Electron.Event, payload: {}) =>
         handler(payload)
           .then(fireReceived(event))
@@ -56,15 +58,9 @@ const glueIpcActionRequestToApi = (resourceToRequest: {
   });
 };
 
-/**
- * grammar looks like COMMAND_RESOURCE
- * eg, GET_CONTACTS
- */
-
-// let dasApi;
 export const initFBChat = (window: BrowserWindow) => {
   const creds = getCreds();
-  FBLogin(creds).then((api: FBAPI) => {
+  return FBLogin(creds).then((api: FBAPI) => {
     glueIpcActionRequestToApi(resourceToRequest(api));
     fs.writeFileSync(
       path.join(CREDS_DIR, APPSTATE_FN),
@@ -77,6 +73,7 @@ export const initFBChat = (window: BrowserWindow) => {
 
     const listen = promisify(api.listen);
     listen().then((message: any) => console.log(message));
+    return api;
   });
 };
 

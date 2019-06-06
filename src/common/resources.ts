@@ -1,6 +1,6 @@
 import _ from "lodash";
 import { useState } from "react";
-import { IpcRenderer } from "electron";
+import { IpcRenderer, ipcRenderer } from "electron";
 import {
   FBAPI,
   command,
@@ -9,8 +9,9 @@ import {
   actionatePayload
 } from "facebook-chat-api";
 import { updateStored } from "./utils";
-import { Dict } from "src/renderer/stateLogic";
+import { Dict } from "../renderer/stateLogic";
 import { promisify } from "util";
+import { Snoozer } from ".";
 
 export type getterSetter<T> = [T, React.Dispatch<React.SetStateAction<T>>];
 export enum FBResource {
@@ -22,13 +23,11 @@ type mapUseState<T> = {
   [x: string]: getterSetter<T>;
 };
 
-type action = {
-  command: command;
-  resource: FBResource;
-  rec: boolean;
-};
-
-export const actionate = ({ command, resource, rec }: action) => {
+export const actionate = (
+  command: command,
+  resource: FBResource,
+  rec: boolean
+) => {
   const base = [command, resource].map(x => x.toUpperCase()).join("_");
   return rec ? "RCV_" + base : base;
 };
@@ -49,6 +48,8 @@ export const resourceToRequest = (api: FBAPI) => {
       },
       post: (payload: actionatePayload<"post", FBResource.messages, false>) => {
         const [body, threadID] = payload;
+        console.log(payload);
+
         return new Promise((resolve, reject) =>
           api.sendMessage(threadID, body, (err: any, data: any) =>
             err ? reject(err) : resolve(data)
@@ -85,34 +86,14 @@ export const useMessenStore = (ipcRenderer: IpcRenderer) => {
 
   if (!initialized) {
     _.values(FBResource).forEach((resource, i) => {
-      const resourceReceived = actionate({
-        resource: resource as FBResource,
-        command: "get",
-        rec: true
-      });
+      const resourceReceived = actionate("get", resource as FBResource, true);
       ipcRenderer.on(resourceReceived, (e: Electron.Event, data: any) => {
         /** @todo handle the case where we need to update, not replace state */
         const [, setState] = states[resource];
         setState(data);
       });
     });
-
-    const resourceReceived = actionate({
-      resource: FBResource.messages,
-      command: "post",
-      rec: true
-    });
-    ipcRenderer.on(resourceReceived, (e: Electron.Event, data: any) => {
-      console.log(data);
-      const [messages, setState] = states[FBResource.messages];
-      const messageMatch = getClosestTmpMessage(messages, data);
-      updateStored(messages, messageMatch);
-    });
     setInitialized(true);
   }
   return states;
 };
-
-function getClosestTmpMessage(messages: Dict<message>, data: unknown) {
-  messages;
-}

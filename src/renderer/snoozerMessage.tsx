@@ -14,24 +14,28 @@ const SnoozeMessage: React.SFC<SnoozeMessageProps> = ({
   defaultWaitTime = 24
 }) => {
   const messageGS = useState(defaultMessage);
-  const [message] = messageGS;
+  const [message, setMessage] = messageGS;
   const waitTime = useState(defaultWaitTime);
   const handleKeyDown = (e: React.KeyboardEvent<HTMLElement>) => {
+    console.log(e.key);
+
     if (e.key === "Enter") {
       snoozeMessage(
         message,
         moment()
-          .add(waitTime[0])
+          .add(waitTime[0], "s")
           .toDate()
       );
+      setMessage("");
     }
   };
+  console.log(message);
 
   const formElements: FormElementProps[] = [
     {
       label: "Snooze for x hours: ",
+      getterSetter: waitTime,
       inputProps: {
-        getterSetter: waitTime,
         type: "number"
       }
     },
@@ -44,8 +48,8 @@ const SnoozeMessage: React.SFC<SnoozeMessageProps> = ({
     // },
     {
       label: "Tell them: ",
+      getterSetter: messageGS,
       inputProps: {
-        getterSetter: messageGS,
         type: "textarea",
         onKeyDown: handleKeyDown
       }
@@ -53,26 +57,38 @@ const SnoozeMessage: React.SFC<SnoozeMessageProps> = ({
   ];
   return (
     <div className="pa3 avenir bg-light-blue">
-      {formElements.map(el => (
-        <div className="db">{FormElement(el)}</div>
+      {formElements.map((el, key) => (
+        <div key={key} className="db">
+          {FormElement(el)}
+        </div>
       ))}
+      <button
+        onClick={() =>
+          snoozeMessage(
+            message,
+            moment()
+              .add(waitTime[0])
+              .toDate()
+          )
+        }
+      />
     </div>
   );
 };
 
 type FormElementProps = {
   label: string;
+  getterSetter: getterSetter<any>;
   inputProps: {
     [x: string]: any;
-    getterSetter: getterSetter<any>;
     type: string;
   };
 };
 
-const FormElement = ({ label, inputProps }: FormElementProps) => {
+const FormElement = ({ label, getterSetter, inputProps }: FormElementProps) => {
   const isTextArea = inputProps.type === "textarea";
-  const [value, setValue] = inputProps.getterSetter || [undefined, undefined];
-  const onChange = e => setValue(e.target.value);
+  const [value, setValue] = getterSetter || [undefined, undefined];
+  const onChange = (e: Event) => e && setValue(e.target.value);
   const inpProps = value ? { ...inputProps, onChange, value } : inputProps;
   return (
     <>

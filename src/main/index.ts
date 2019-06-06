@@ -4,6 +4,8 @@ import { app, BrowserWindow } from "electron";
 import * as path from "path";
 import { format as formatUrl } from "url";
 import { initFBChat } from "./initFBChat";
+import { saveSnoozerDS, initSnoozer } from "./handleSnooze";
+import { FBAPI } from "facebook-chat-api";
 const isDevelopment = process.env.NODE_ENV !== "production";
 
 // global reference to mainWindow (necessary to prevent window from being garbage collected)
@@ -60,5 +62,9 @@ app.on("activate", () => {
 // create main BrowserWindow when electron is ready
 app.on("ready", () => {
   mainWindow = createMainWindow();
-  initFBChat(mainWindow);
+  initFBChat(mainWindow).then((api: FBAPI) => {
+    mainWindow && initSnoozer(mainWindow.webContents.send);
+  });
 });
+
+app.on("will-quit", saveSnoozerDS);
