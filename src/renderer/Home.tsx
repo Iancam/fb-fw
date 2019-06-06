@@ -45,6 +45,8 @@ export default () => {
       setListening(true);
     }
   });
+  console.log(messages[0]);
+  // console.log(threads[0]);
 
   const selectedThread = threads[0][selectedThreadID];
   return (
@@ -67,13 +69,14 @@ export default () => {
             scrollViewDiv={scrollView}
             endOfMessages={endOfMessages}
             yourID={yourID}
-            currentHistory={Object.values(messages[0]).sort((a, b) =>
-              moment(b.timestamp).diff(a.timestamp)
+            currentHistory={Object.values(messages[0]).sort(
+              (a, b) => a.timestamp - b.timestamp
             )}
           />
         )}
         {threads && selectedThread && (
           <SelectedThread
+            snoozeTitle={snoozeVisible ? "Hide" : "Snooze"}
             markUnread={markUnread(threads, ipcRenderer, selectedThreadID)}
             snooze={() => setSnoozeVisible(snoozeVisible ? false : true)}
             selectedThread={selectedThread}
@@ -87,15 +90,14 @@ export default () => {
         )}
         {messages && (
           <Reply
-            reff={chatInput}
-            sendMessage={() => {
+            chatInput={chatInput}
+            sendMessage={(body: string) => {
+              scrollTo(endOfMessages.current);
               sendMessage({
                 selectedThreadID,
                 messages,
-                chatInput,
                 yourID
-              })();
-              scrollTo(endOfMessages.current);
+              })(body);
             }}
           />
         )}

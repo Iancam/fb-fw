@@ -20,20 +20,18 @@ export const loadNextMessages = (threadId: string, messages: message[]) => {
 export const sendMessage = ({
   selectedThreadID: threadID,
   messages,
-  chatInput,
   yourID
 }: {
   selectedThreadID: string;
   messages: getterSetter<Dict<message>>;
-  chatInput: React.RefObject<HTMLInputElement>;
   yourID: string;
-}) => () => {
-  if (!chatInput || !chatInput.current) return;
-  const body = chatInput.current.value;
+}) => (body: string) => {
   const payload: actionatePayload<"post", FBResource.messages, false> = [
     threadID,
     body
   ];
+  console.log(payload);
+
   ipcRenderer.send(actionate("post", FBResource.messages, false), payload);
   const tmp = "tmp" + getNewId();
   updateStored(messages, {
@@ -46,8 +44,6 @@ export const sendMessage = ({
       timestamp: Date.now()
     }
   });
-
-  chatInput.current.value = "";
 };
 
 export const markUnread = (
@@ -103,10 +99,7 @@ const snoozeMessage = (
   console.log("dis be snozzled", { data });
   setTimeout(() => {
     // actually post the message
-    ipcRenderer.send(actionate("post", FBResource.messages, false), [
-      data.threadID,
-      data.message
-    ]);
+    sendMessage([data.threadID, data.message]);
     // clear it from storage
     ipcRenderer.send("DELETE_SNOOZER", data);
     if (snoozers) {

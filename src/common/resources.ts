@@ -44,7 +44,9 @@ export const resourceToRequest = (api: FBAPI) => {
     },
     messages: {
       get: (payload: actionatePayload<"get", FBResource.messages, false>) => {
-        return promisify(api.getThreadHistory)(...payload);
+        return promisify(api.getThreadHistory)(...payload).then(ms =>
+          _.keyBy(ms, "messageID")
+        );
       },
       post: (payload: actionatePayload<"post", FBResource.messages, false>) => {
         const [body, threadID] = payload;

@@ -17,8 +17,6 @@ const SnoozeMessage: React.SFC<SnoozeMessageProps> = ({
   const [message, setMessage] = messageGS;
   const waitTime = useState(defaultWaitTime);
   const handleKeyDown = (e: React.KeyboardEvent<HTMLElement>) => {
-    console.log(e.key);
-
     if (e.key === "Enter") {
       snoozeMessage(
         message,
@@ -26,11 +24,9 @@ const SnoozeMessage: React.SFC<SnoozeMessageProps> = ({
           .add(waitTime[0], "s")
           .toDate()
       );
-      setMessage("");
+      // setMessage("");
     }
   };
-  console.log(message);
-
   const formElements: FormElementProps[] = [
     {
       label: "Snooze for x hours: ",
@@ -71,7 +67,9 @@ const SnoozeMessage: React.SFC<SnoozeMessageProps> = ({
               .toDate()
           )
         }
-      />
+      >
+        Snooze
+      </button>
     </div>
   );
 };
