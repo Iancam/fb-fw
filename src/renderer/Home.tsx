@@ -9,17 +9,15 @@ import {
   markUnread,
   Dict,
   sendMessage,
-  scrollTo,
-  useSnoozers,
-  useSnoozeThread
+  scrollTo
 } from "./stateLogic";
 import ChatWindow from "./ChatWindow";
 import Reply from "./Reply";
 import { thread, message } from "facebook-chat-api";
-
-import SnoozeMessage from "./snoozerMessage";
 import { yourID } from "../common/utils";
 import { useMessenStore } from "./messenStore";
+import moment from "moment";
+import { useSnoozeThread } from "./snoozeThreadLogic";
 const defaultMessage = "Hey, just checking in! How are are things going?";
 
 export default () => {
@@ -79,11 +77,11 @@ export default () => {
         {threads && selectedThread && (
           <SelectedThread
             snoozeTitle={
-              snoozed.all.includes(selectedThreadID) ? "UnSnooze" : "Snooze"
+              snoozed.includes(selectedThreadID) ? "UnSnooze" : "Snooze"
             }
             markUnread={markUnread(threads, ipcRenderer, selectedThreadID)}
             snooze={() =>
-              snoozed.all.includes(selectedThreadID)
+              snoozed.includes(selectedThreadID)
                 ? snoozed.remove(selectedThreadID)
                 : snoozed.add(selectedThreadID)
             }
@@ -104,14 +102,26 @@ export default () => {
           />
         )}
       </div>
-      <div className="vh-100 w-10 fr pa2">
+      <div className="vh-100 w-20 fr pa2">
         {snoozed.all
-          .map((threadid: string) => threads[0][threadid])
-          .map(
-            ThreadCard({
-              onThreadClick: id => console.log("nice job breaking this one out")
-            })
-          )}
+          .map(({ threadID, timestamp }) => ({
+            ...threads[0][threadID],
+            timestamp
+          }))
+          .map(snoozedThread => (
+            <>
+              {ThreadCard({
+                onThreadClick: openThread(
+                  ipcRenderer,
+                  [selectedThreadID, updateId],
+                  threads
+                )
+              })(snoozedThread)}
+              <p className="i f6 ma0">
+                snoozed {moment(snoozedThread.timestamp).fromNow()}
+              </p>
+            </>
+          ))}
       </div>
     </div>
   );
