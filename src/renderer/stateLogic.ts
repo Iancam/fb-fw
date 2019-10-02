@@ -2,7 +2,7 @@ import { ipcRenderer, IpcRenderer } from "electron";
 import { actionate, getterSetter } from "../common/resources";
 import _ from "lodash";
 import { updateStored, getNewId } from "../common/utils";
-import { actionatePayload, message, thread } from "facebook-chat-api";
+import { actionatePayload, message, thread, threadID } from "facebook-chat-api";
 import { FBResource } from "../common/resources";
 import { Snoozer } from "../common";
 import { useState } from "react";
@@ -95,24 +95,49 @@ const snoozeMessage = (
 ) => (data: Snoozer) => {
   // store the snoozer in case we shut down
   const key = data.threadID;
-
   if (snoozers[0] && !snoozers[0][key]) {
     ipcRenderer.send("POST_SNOOZER", data);
   }
-  const diff = moment(data.time).diff(moment());
-  setTimeout(() => {
-    // actually post the message
-    sendMessage({ selectedThreadID: data.threadID, messages, yourID })(
-      data.message
-    );
+};
 
-    // clear it from storage
-    ipcRenderer.send("DELETE_SNOOZER", data);
-    if (snoozers[0]) {
-      const { [data.threadID]: d, ...newSnoozers } = snoozers[0];
-      snoozers[1](newSnoozers);
-    }
-  }, Math.max(diff, 0));
+const snoozeThread = (threads: getterSetter<threadID[]>) => (
+  data: threadID
+) => {
+  ipcRenderer.send("POST_SNOOZE_THREAD", data);
+  threads[1]([...threads[0], data]);
+};
+const unSnoozeThread = (threads: getterSetter<threadID[]>) => (
+  data: threadID
+) => {
+  ipcRenderer.send("DELETE_SNOOZE_THREAD", data);
+  threads[1](threads[0].filter(el => el !== data));
+};
+
+export const useSnoozeThread = (ipcRenderer: IpcRenderer) => {
+  const [initialized, setInitialized] = useState(false);
+  const state = useState<threadID[]>([]);
+  if (!initialized) {
+    ipcRenderer.on(
+      "GET_SNOOZE_THREAD_RCV",
+      (e: Electron.Event, d: Dict<Snoozer>) => {
+        console.log("GET_SNOOZE_THREAD_RCV");
+      }
+    );
+    ipcRenderer.on(
+      "POST_SNOOZE_THREAD_RCV",
+      (e: Electron.Event, d: Dict<Snoozer>) => {
+        console.log("POST_SNOOZE_THREAD_RCV", "not implemented yet");
+
+        // setSnoozers(d);
+      }
+    );
+    setInitialized(true);
+  }
+  return {
+    all: state[0],
+    add: snoozeThread(state),
+    remove: unSnoozeThread(state)
+  };
 };
 
 /**@todo add snoozers to the app API */
@@ -121,7 +146,6 @@ export const useSnoozers = (
   messages: getterSetter<Dict<message>>
 ) => {
   const [initialized, setInitialized] = useState(false);
-  const [timers, setTimers] = useState(false);
   const [snoozers, setSnoozers] = useState<Dict<Snoozer> | undefined>(
     undefined
   );
@@ -144,9 +168,8 @@ export const useSnoozers = (
     ipcRenderer.send("GET_SNOOZERS");
     setInitialized(true);
   }
-  if (!timers && snoozers) {
+  if (snoozers) {
     Object.values(snoozers).forEach(localSnoozeMessage);
-    setTimers(true);
   }
 
   return _.curry((threadID: string, message: string, time: Date) =>

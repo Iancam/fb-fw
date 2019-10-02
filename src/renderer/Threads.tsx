@@ -5,7 +5,7 @@ type threadDeps = {
   onThreadClick: (id: string) => void;
 };
 
-const thread = ({ onThreadClick }: threadDeps) => ({
+export const ThreadCard = ({ onThreadClick }: threadDeps) => ({
   threadID,
   name,
   participants,
@@ -25,4 +25,4 @@ export default ({
   onThreadClick
 }: {
   list: thread[];
-} & threadDeps) => <div>{list.map(thread({ onThreadClick }))}</div>;
+} & threadDeps) => <div>{list.map(ThreadCard({ onThreadClick }))}</div>;

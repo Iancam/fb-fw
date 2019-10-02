@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react"; // import { Link } f
 import { ipcRenderer } from "electron";
 import _ from "lodash";
 import { getterSetter, actionate, FBResource } from "../common/resources";
-import Threads from "./Threads";
+import Threads, { ThreadCard } from "./Threads";
 import SelectedThread from "./selectedThread";
 import {
   openThread,
@@ -10,7 +10,8 @@ import {
   Dict,
   sendMessage,
   scrollTo,
-  useSnoozers
+  useSnoozers,
+  useSnoozeThread
 } from "./stateLogic";
 import ChatWindow from "./ChatWindow";
 import Reply from "./Reply";
@@ -30,9 +31,11 @@ export default () => {
     messages: getterSetter<Dict<message>>;
   };
   const [selectedThreadID, updateId] = useState("");
-  const [snoozeVisible, setSnoozeVisible] = useState(false);
+  // const [snoozeVisible, setSnoozeVisible] = useState(false);
+  // const [queueVisible, setQueueVisible] = useState(false);
+  const snoozed = useSnoozeThread(ipcRenderer);
   const [listening, setListening] = useState(false);
-  const makeSnoozer = useSnoozers(ipcRenderer, messages);
+  // const makeSnoozer = useSnoozers(ipcRenderer, messages);
   useEffect(() => {
     if (_.isEmpty(threads[0])) {
       ipcRenderer.send(actionate("get", FBResource.threads, false), {});
@@ -60,7 +63,7 @@ export default () => {
           />
         )}
       </div>
-      <div className="vh-100 w-70 fr pa2">
+      <div className="vh-100 w-60 fl pa2">
         {messages && (
           <ChatWindow
             scrollViewDiv={scrollView}
@@ -75,16 +78,16 @@ export default () => {
         )}
         {threads && selectedThread && (
           <SelectedThread
-            snoozeTitle={snoozeVisible ? "Hide" : "Snooze"}
+            snoozeTitle={
+              snoozed.all.includes(selectedThreadID) ? "UnSnooze" : "Snooze"
+            }
             markUnread={markUnread(threads, ipcRenderer, selectedThreadID)}
-            snooze={() => setSnoozeVisible(snoozeVisible ? false : true)}
+            snooze={() =>
+              snoozed.all.includes(selectedThreadID)
+                ? snoozed.remove(selectedThreadID)
+                : snoozed.add(selectedThreadID)
+            }
             selectedThread={selectedThread}
-          />
-        )}
-        {snoozeVisible && (
-          <SnoozeMessage
-            defaultMessage={defaultMessage}
-            snoozeMessage={makeSnoozer(selectedThreadID)}
           />
         )}
         {messages && (
@@ -100,6 +103,15 @@ export default () => {
             }}
           />
         )}
+      </div>
+      <div className="vh-100 w-10 fr pa2">
+        {snoozed.all
+          .map((threadid: string) => threads[0][threadid])
+          .map(
+            ThreadCard({
+              onThreadClick: id => console.log("nice job breaking this one out")
+            })
+          )}
       </div>
     </div>
   );
