@@ -99,12 +99,8 @@ const snoozeMessage = (
   if (snoozers[0] && !snoozers[0][key]) {
     ipcRenderer.send("POST_SNOOZER", data);
   }
-
   const diff = moment(data.time).diff(moment());
-  console.log("dis be snozzled", { data, diff });
   setTimeout(() => {
-    console.log("bang, I was fired");
-
     // actually post the message
     sendMessage({ selectedThreadID: data.threadID, messages, yourID })(
       data.message
@@ -149,8 +145,6 @@ export const useSnoozers = (
     setInitialized(true);
   }
   if (!timers && snoozers) {
-    console.log(snoozers);
-
     Object.values(snoozers).forEach(localSnoozeMessage);
     setTimers(true);
   }

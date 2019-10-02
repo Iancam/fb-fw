@@ -2,6 +2,26 @@ import React, { useState } from "react";
 import moment from "moment";
 import { getterSetter } from "../common/resources";
 
+const FormElement = ({ label, getterSetter, inputProps }: FormElementProps) => {
+  const isTextArea = inputProps.type === "textarea";
+  const [value, setValue] = getterSetter || [undefined, undefined];
+  const onChange = (e: React.ChangeEvent<HTMLInputElement>) =>
+    e && setValue(e.target.value);
+  const inpProps = value ? { ...inputProps, onChange, value } : inputProps;
+  return (
+    <>
+      <label className={"w-25"} htmlFor="label">
+        {label}
+      </label>
+      {isTextArea ? (
+        <textarea name={label} {...inpProps} />
+      ) : (
+        <input name={label} {...inpProps} />
+      )}
+    </>
+  );
+};
+
 export interface SnoozeMessageProps {
   defaultMessage: string;
   snoozeMessage: (message: string, timeInHours: Date) => void;
@@ -81,26 +101,6 @@ type FormElementProps = {
     [x: string]: any;
     type: string;
   };
-};
-
-const FormElement = ({ label, getterSetter, inputProps }: FormElementProps) => {
-  const isTextArea = inputProps.type === "textarea";
-  const [value, setValue] = getterSetter || [undefined, undefined];
-  const onChange = (e: React.ChangeEvent<HTMLInputElement>) =>
-    e && setValue(e.target.value);
-  const inpProps = value ? { ...inputProps, onChange, value } : inputProps;
-  return (
-    <>
-      <label className={"w-25"} htmlFor="label">
-        {label}
-      </label>
-      {isTextArea ? (
-        <textarea name={label} {...inpProps} />
-      ) : (
-        <input name={label} {...inpProps} />
-      )}
-    </>
-  );
 };
 
 export default SnoozeMessage;
