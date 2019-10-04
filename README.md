@@ -1,3 +1,24 @@
+# Facebook Follow-up 
+
+## Getting Started
+
+const CREDS_DIR = "creds";
+const CREDS_FN = "credentials.json";
+
+`mkdir creds && code creds/credentials.json`
+
+add 
+```json
+{
+  "email": "<your email>",
+  "password": "<your password>"
+}
+```
+
+After the first time running the app, you should be able to delete this file if you're worried about H4XXOR$$.
+
+I'll add a login screen in a future version, and probably transition to an sqlite database of some kind.
+
 # electron-webpack-quick-start
 > A bare minimum project structure to get started developing with [`electron-webpack`](https://github.com/electron-userland/electron-webpack).
 
