@@ -2,32 +2,39 @@ import React from "react";
 import { message } from "facebook-chat-api";
 
 const message = (yourID: string) => (
-  { body, type, senderID, messageID, threadID }: message,
+  props: message & { mixin: any },
   i: number
-) =>
-  type === "message" ? (
-    <div
-      className={
-        (senderID === threadID ? "" : "bg-black-10") + " pa2 avenir tl pr7"
-      }
-      key={messageID === "tmp" ? messageID + i : messageID}
-    >
-      <span>{body}</span>
+) => {
+  const { body, type, senderID, messageID, threadID, mixin } = props;
+  return type === "message" ? (
+    <div className="fl ma2">
+      <div
+        className={
+          (senderID === threadID ? "" : "bg-black-10") + "fl w-70 avenir tl"
+        }
+        key={messageID === "tmp" ? messageID + i : messageID}
+      >
+        <span>{body}</span>
+      </div>
+      <div className="fr">{mixin({ ...props, mixin: undefined })}</div>
     </div>
   ) : (
     "event"
   );
+};
 
 export default ({
   currentHistory,
   scrollViewDiv,
   endOfMessages,
-  yourID
+  yourID,
+  messagesMixin
 }: {
   currentHistory: message[];
   scrollViewDiv: React.RefObject<HTMLDivElement>;
   endOfMessages: React.RefObject<HTMLDivElement>;
   yourID: string;
+  messagesMixin?: any;
 }) => {
   return (
     <div
@@ -35,7 +42,9 @@ export default ({
       ref={scrollViewDiv}
     >
       <div className="display-none" ref={endOfMessages} />
-      {currentHistory.reverse().map(message(yourID))}
+      {currentHistory.reverse().map((p, i) => {
+        return message(yourID)({ ...p, mixin: messagesMixin }, i);
+      })}
     </div>
   );
 };

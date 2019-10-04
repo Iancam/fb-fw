@@ -2,15 +2,13 @@ import React from "react";
 import { thread } from "facebook-chat-api";
 
 export default ({
-  snoozeTitle,
   selectedThread,
   markUnread,
-  snooze
+  children
 }: {
-  snoozeTitle: string;
   selectedThread: thread;
   markUnread: () => void;
-  snooze: (...params: any) => void;
+  children: any;
 }) =>
   selectedThread ? (
     <div className="dib">
@@ -18,8 +16,6 @@ export default ({
         <div style={{ cursor: "pointer" }}>Mark as unread</div>{" "}
       </a>
       <div className="dib pa2 fw-700">{selectedThread.name}</div>
-      <a href="#" className="dib pa2 link avenir" onClick={snooze}>
-        <div style={{ cursor: "pointer" }}>{snoozeTitle}</div>
-      </a>
+      {children}
     </div>
   ) : null;

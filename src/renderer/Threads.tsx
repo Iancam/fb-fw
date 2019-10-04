@@ -8,8 +8,7 @@ type threadDeps = {
 export const ThreadCard = ({ onThreadClick }: threadDeps) => ({
   threadID,
   name,
-  participants,
-  unreadCount
+  participants
 }: thread) => {
   return (
     <a href="#" onClick={() => onThreadClick(threadID)} className="link">

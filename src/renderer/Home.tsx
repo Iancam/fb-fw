@@ -18,6 +18,8 @@ import { yourID } from "../common/utils";
 import { useMessenStore } from "./messenStore";
 import moment from "moment";
 import { useSnoozeThread } from "./snoozeThreadLogic";
+import { SnoozeLink } from "./SnoozeLink";
+import { threadId } from "worker_threads";
 const defaultMessage = "Hey, just checking in! How are are things going?";
 
 export default () => {
@@ -46,7 +48,18 @@ export default () => {
     }
   });
   const selectedThread = threads[0][selectedThreadID];
-
+  const messageList = messages[0] && Object.values(messages[0]);
+  const lastMessage = messageList[messageList.length - 1];
+  const snooze = (messageId = lastMessage.messageID) => {
+    const message = messages && messages[0][messageId];
+    snoozed.includes(messageId)
+      ? snoozed.remove(messageId)
+      : snoozed.add(message);
+    console.log(messageId);
+  };
+  const snoozeTitle = (messageId: string) => {
+    return snoozed.includes(messageId) ? "UnSnooze" : "Snooze";
+  };
   return (
     <div className="cf" data-tid="container">
       <div className="fl fw-700 avenir pa2 w-20 vh-100 overflow-scroll">
@@ -66,6 +79,12 @@ export default () => {
           <ChatWindow
             scrollViewDiv={scrollView}
             endOfMessages={endOfMessages}
+            messagesMixin={({ messageID }: message) => (
+              <SnoozeLink
+                onClick={() => snooze(messageID)}
+                title={snoozeTitle(messageID)}
+              ></SnoozeLink>
+            )}
             yourID={yourID}
             currentHistory={Object.values(messages[0]).sort(
               ({ timestamp: a }, { timestamp: b }) => {
@@ -76,17 +95,14 @@ export default () => {
         )}
         {threads && selectedThread && (
           <SelectedThread
-            snoozeTitle={
-              snoozed.includes(selectedThreadID) ? "UnSnooze" : "Snooze"
-            }
             markUnread={markUnread(threads, ipcRenderer, selectedThreadID)}
-            snooze={() =>
-              snoozed.includes(selectedThreadID)
-                ? snoozed.remove(selectedThreadID)
-                : snoozed.add(selectedThreadID)
-            }
             selectedThread={selectedThread}
-          />
+          >
+            <SnoozeLink
+              title={snoozeTitle(lastMessage && lastMessage.messageID)}
+              onClick={() => snooze()}
+            ></SnoozeLink>
+          </SelectedThread>
         )}
         {messages && (
           <Reply
@@ -103,25 +119,30 @@ export default () => {
         )}
       </div>
       <div className="vh-100 w-20 fr pa2">
-        {snoozed.all
-          .map(({ threadID, timestamp }) => ({
-            ...threads[0][threadID],
-            timestamp
-          }))
-          .map(snoozedThread => (
-            <>
-              {ThreadCard({
-                onThreadClick: openThread(
-                  ipcRenderer,
-                  [selectedThreadID, updateId],
-                  threads
-                )
-              })(snoozedThread)}
-              <p className="i f6 ma0">
-                snoozed {moment(snoozedThread.timestamp).fromNow()}
-              </p>
-            </>
-          ))}
+        {snoozed.all.map(
+          ({ snoozedAt, message: { threadID, messageID, body } }) => {
+            const snoozedThread = {
+              ...threads[0][threadID],
+              snoozedAt,
+              messageID
+            };
+            return (
+              <>
+                {ThreadCard({
+                  onThreadClick: openThread(
+                    ipcRenderer,
+                    [selectedThreadID, updateId],
+                    threads
+                  )
+                })(snoozedThread)}
+                <span className="i f6 ma0">
+                  snoozed {moment(snoozedThread.snoozedAt).fromNow()}:{" "}
+                </span>
+                <div className="f6 ma0 mw4 truncate">{body}</div>
+              </>
+            );
+          }
+        )}
       </div>
     </div>
   );
