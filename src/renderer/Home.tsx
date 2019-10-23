@@ -17,10 +17,8 @@ import { thread, message } from "facebook-chat-api";
 import { yourID } from "../common/utils";
 import { useMessenStore } from "./messenStore";
 import moment from "moment";
-import { useSnoozeThread } from "./snoozeThreadLogic";
+import { useSnoozeMessage } from "./snoozeMessageLogic";
 import { SnoozeLink } from "./SnoozeLink";
-import { threadId } from "worker_threads";
-const defaultMessage = "Hey, just checking in! How are are things going?";
 
 export default () => {
   const chatInput = useRef<HTMLInputElement>(null);
@@ -33,7 +31,7 @@ export default () => {
   const [selectedThreadID, updateId] = useState("");
   // const [snoozeVisible, setSnoozeVisible] = useState(false);
   // const [queueVisible, setQueueVisible] = useState(false);
-  const snoozed = useSnoozeThread(ipcRenderer);
+  const snoozed = useSnoozeMessage(ipcRenderer);
   const [listening, setListening] = useState(false);
   // const makeSnoozer = useSnoozers(ipcRenderer, messages);
   useEffect(() => {
