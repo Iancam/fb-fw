@@ -75,12 +75,14 @@ export default () => {
       <div className="vh-100 w-60 fl pa2">
         {messages && (
           <ChatWindow
+            className="hide-child"
             scrollViewDiv={scrollView}
             endOfMessages={endOfMessages}
             messagesMixin={({ messageID }: message) => (
               <SnoozeLink
                 onClick={() => snooze(messageID)}
                 title={snoozeTitle(messageID)}
+                className="child"
               ></SnoozeLink>
             )}
             yourID={yourID}
@@ -119,20 +121,26 @@ export default () => {
       <div className="vh-100 w-20 fr pa2">
         {snoozed.all.map(
           ({ snoozedAt, message: { threadID, messageID, body } }) => {
+            const thread = threads[0][threadID];
             const snoozedThread = {
-              ...threads[0][threadID],
+              ...thread,
               snoozedAt,
               messageID
             };
+            console.log(threads);
+
+            console.log(snoozedThread);
+
             return (
               <>
-                {ThreadCard({
-                  onThreadClick: openThread(
-                    ipcRenderer,
-                    [selectedThreadID, updateId],
-                    threads
-                  )
-                })(snoozedThread)}
+                {thread &&
+                  ThreadCard({
+                    onThreadClick: openThread(
+                      ipcRenderer,
+                      [selectedThreadID, updateId],
+                      threads
+                    )
+                  })(snoozedThread)}
                 <span className="i f6 ma0">
                   snoozed {moment(snoozedThread.snoozedAt).fromNow()}:{" "}
                 </span>
