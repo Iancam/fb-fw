@@ -6,10 +6,12 @@ import { promisify } from "util";
 import { FBAPI, apiHandler, command, FBResource } from "facebook-chat-api";
 import login from "facebook-chat-api";
 
-const FBLogin = promisify((login as unknown) as (
-  creds: any,
-  callback: (error: Error | null | undefined, data: any) => any
-) => FBAPI);
+const FBLogin = promisify(
+  (login as unknown) as (
+    creds: any,
+    callback: (error: Error | null | undefined, data: any) => any
+  ) => FBAPI
+);
 
 const CREDS_DIR = "creds";
 const APPSTATE_FN = "appstate.json";
@@ -66,19 +68,21 @@ const glueIpcActionRequestToApi = (resourceToRequest: {
 
 export const initFBChat = (window: BrowserWindow) => {
   const creds = getCreds();
-  return FBLogin(creds).then((api: FBAPI) => {
-    glueIpcActionRequestToApi(resourceToRequest(api));
-    fs.writeFileSync(
-      path.join(CREDS_DIR, APPSTATE_FN),
-      JSON.stringify(api.getAppState())
-    );
+  return FBLogin(creds)
+    .then((api: FBAPI) => {
+      glueIpcActionRequestToApi(resourceToRequest(api));
+      fs.writeFileSync(
+        path.join(CREDS_DIR, APPSTATE_FN),
+        JSON.stringify(api.getAppState())
+      );
 
-    /**
-     * @todo figure out where this snippet should go
-     */
+      /**
+       * @todo figure out where this snippet should go
+       */
 
-    const listen = promisify(api.listen);
-    listen().then((message: any) => console.log(message));
-    return api;
-  });
+      const listen = promisify(api.listenMqtt);
+      listen().then((message: any) => console.log(message));
+      return api;
+    })
+    .catch(err => console.log(err));
 };

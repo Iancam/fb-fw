@@ -48,6 +48,7 @@ type threadListTags =
 
 export type FBAPI = {
   getAppState(): any;
+  listenMqtt(): void;
   listen(): void;
   addUserToGroup(
     userID: string,
