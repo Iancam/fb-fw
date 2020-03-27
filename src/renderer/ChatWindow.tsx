@@ -10,7 +10,7 @@ const message = (yourID: string) => (
     <div className="fl ma2 hide-child">
       <div
         className={
-          (senderID === threadID ? "" : "bg-black-10") + "fl w-70 avenir tl"
+          (senderID === threadID ? "" : "bg-black-10") + " fl w-70 avenir tl"
         }
         key={messageID === "tmp" ? messageID + i : messageID}
       >

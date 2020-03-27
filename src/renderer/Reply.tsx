@@ -15,7 +15,7 @@ export default ({
   };
   return (
     <div className="pb4">
-      <input
+      <textarea
         ref={chatInput}
         className="w-100 h-100 pa2"
         onKeyPress={e => e.key === "Enter" && sendIt()}
