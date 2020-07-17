@@ -17,7 +17,7 @@
     "redux": "^4.0.1",
     "source-map-support": "^0.5.10",
     "tachyons": "^4.11.1",
-    "lodash": "^4.17.12"
+    "lodash": "^4.17.19"
   },
   "devDependencies": {
     "@babel/preset-react": "^7.0.0",
